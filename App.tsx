@@ -9,45 +9,14 @@
  */
 
 import React, {useCallback, useEffect, useState} from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  Pressable,
-  SafeAreaView,
-  Text,
-  View,
-} from 'react-native';
+import {Button, SafeAreaView, View} from 'react-native';
 
 import {useAsync} from 'react-async';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import api from './api';
 import styles from './styles';
-
-type KeyPadProps = {
-  value: string;
-  onPress: (value: string) => void;
-};
-
-const KeyPad = ({value, onPress}: KeyPadProps) => {
-  return (
-    <View style={styles.keyPadStyle}>
-      <Pressable
-        onPress={() => onPress(value)}
-        style={styles.buttonStyle}
-        testID={`input-${value}`}>
-        <Text style={styles.buttonTextStyle}>{value}</Text>
-      </Pressable>
-    </View>
-  );
-};
-
-const Loader = () => {
-  return (
-    <View style={styles.loaderContainer}>
-      <ActivityIndicator size={'large'} />
-    </View>
-  );
-};
+import KeyPad from './components/KeyPad';
+import Loader from './components/Loader';
 
 const App = () => {
   const [pin, setPin] = useState('');
