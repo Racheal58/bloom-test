@@ -12,6 +12,7 @@ import React, {useEffect, useState} from 'react';
 import {Button, Pressable, SafeAreaView, Text, View} from 'react-native';
 
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
+import {login, logout} from './api';
 
 const KeyBoard = (props: any) => {
   return (
@@ -49,45 +50,19 @@ const App = () => {
 
   useEffect(() => {
     if (pin.length === 4) {
-      console.log('call');
-      fetch('http://localhost:3000/login', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pin,
-        }),
-      })
-        .then(res => {
-          return res.json();
-        })
-        .then(({token}) => {
-          if (token) {
-            setTokenState(token);
-          }
-        });
+      setPin('');
+      login(pin).then(({token}) => {
+        if (token) {
+          setTokenState(token);
+        }
+      });
     }
   }, [pin]);
 
   const onLogout = () => {
-    fetch('http://localhost:3000/logout', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        pin,
-      }),
-    })
-      .then(res => {
-        return res.json();
-      })
-      .then(() => {
-        setTokenState('');
-      });
+    logout().then(() => {
+      setTokenState('');
+    });
   };
 
   return (
