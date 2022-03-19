@@ -8,10 +8,18 @@
  * @format
  */
 
-import React, {useEffect, useState} from 'react';
-import {Button, Pressable, SafeAreaView, Text, View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  Button,
+  Pressable,
+  SafeAreaView,
+  Text,
+  View,
+} from 'react-native';
 
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
+import {useAsync} from 'react-async';
 import {login, logout} from './api';
 
 const KeyBoard = (props: any) => {
@@ -40,6 +48,20 @@ const KeyBoard = (props: any) => {
   );
 };
 
+const Loader = () => {
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+      }}>
+      <ActivityIndicator size={'large'} />
+    </View>
+  );
+};
+
 const App = () => {
   const [pin, setPin] = useState('');
   const [tokenState, setTokenState] = useState('');
@@ -47,23 +69,26 @@ const App = () => {
   const onKeyPress = (text: string) => {
     setPin(prev => prev + text);
   };
-
+  const {isLoading: isLoggingIn, run: runLogIn} = useAsync({
+    deferFn: useCallback(() => login(pin), [pin]),
+    onResolve: useCallback(({token}) => {
+      if (token) {
+        setTokenState(token);
+        setPin('');
+      }
+    }, []),
+  });
+  const {isLoading: isLoggingOut, run: runLogOut} = useAsync({
+    deferFn: useCallback(() => logout(), []),
+    onResolve: useCallback(() => {
+      setTokenState('');
+    }, []),
+  });
   useEffect(() => {
     if (pin.length === 4) {
-      setPin('');
-      login(pin).then(({token}) => {
-        if (token) {
-          setTokenState(token);
-        }
-      });
+      runLogIn();
     }
-  }, [pin]);
-
-  const onLogout = () => {
-    logout().then(() => {
-      setTokenState('');
-    });
-  };
+  }, [pin.length, runLogIn]);
 
   return (
     <SafeAreaView
@@ -117,9 +142,11 @@ const App = () => {
         </>
       ) : (
         <View>
-          <Button title="Logout" onPress={onLogout} color={'red'} />
+          <Button title="Logout" onPress={runLogOut} color={'red'} />
         </View>
       )}
+      {isLoggingIn && <Loader />}
+      {isLoggingOut && <Loader />}
     </SafeAreaView>
   );
 };
