@@ -71,15 +71,19 @@ const App = () => {
   };
   const {isLoading: isLoggingIn, run: runLogIn} = useAsync({
     deferFn: useCallback(() => login(pin), [pin]),
-    onResolve: useCallback(({token}) => {
+    onResolve: useCallback(response => {
+      const {token} = response;
       if (token) {
         setTokenState(token);
         setPin('');
       }
     }, []),
+    onReject: useCallback(() => {
+      setPin('');
+    }, []),
   });
   const {isLoading: isLoggingOut, run: runLogOut} = useAsync({
-    deferFn: useCallback(() => logout(), []),
+    deferFn: useCallback(() => logout(tokenState), [tokenState]),
     onResolve: useCallback(() => {
       setTokenState('');
     }, []),
