@@ -1,7 +1,5 @@
 import {Alert} from 'react-native';
-
-const BASE_API_URL = 'http://localhost:3000';
-
+import Config from 'react-native-config';
 const fetchTransform = async (res: Response) => {
   const {error, ...data} = await res.json();
   if (error) {
@@ -12,7 +10,7 @@ const fetchTransform = async (res: Response) => {
 };
 
 const login = (pin: string) => {
-  return fetch(`${BASE_API_URL}/login`, {
+  return fetch(`${Config.BASE_API_URL}/login`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -25,7 +23,7 @@ const login = (pin: string) => {
 };
 
 const logout = (token: string) => {
-  return fetch(`${BASE_API_URL}/logout`, {
+  return fetch(`${Config.BASE_API_URL}/logout`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

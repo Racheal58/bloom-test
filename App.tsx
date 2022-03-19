@@ -1,13 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
 import React, {useCallback, useEffect, useState} from 'react';
 import {Button, SafeAreaView, View} from 'react-native';
 
@@ -21,9 +11,11 @@ import Loader from './components/Loader';
 const App = () => {
   const [pin, setPin] = useState('');
   const [tokenState, setTokenState] = useState('');
-
+  const MAX_PIN_LENGTH = 4;
   const onKeyPress = (text: string) => {
-    setPin(prev => prev + text);
+    if (pin.length < MAX_PIN_LENGTH) {
+      setPin(prev => prev + text);
+    }
   };
   const {isLoading: isLoggingIn, run: runLogIn} = useAsync({
     deferFn: useCallback(async () => {
@@ -47,7 +39,7 @@ const App = () => {
     }, []),
   });
   useEffect(() => {
-    if (pin.length === 4) {
+    if (pin.length === MAX_PIN_LENGTH) {
       runLogIn();
     }
   }, [pin.length, runLogIn]);
@@ -63,6 +55,7 @@ const App = () => {
               cellStyleFocused={styles.cellStyleFocused}
               value={pin}
               onTextChange={setPin}
+              inputProps={{showSoftInputOnFocus: false}}
             />
           </View>
 
