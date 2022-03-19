@@ -11,7 +11,7 @@ const fetchTransform = async (res: Response) => {
   return data;
 };
 
-export const login = (pin: string) => {
+const login = (pin: string) => {
   return fetch(`${BASE_API_URL}/login`, {
     method: 'POST',
     headers: {
@@ -24,7 +24,7 @@ export const login = (pin: string) => {
   }).then(fetchTransform);
 };
 
-export const logout = (token: string) => {
+const logout = (token: string) => {
   return fetch(`${BASE_API_URL}/logout`, {
     method: 'POST',
     headers: {
@@ -33,4 +33,9 @@ export const logout = (token: string) => {
       Authorization: token,
     },
   }).then(fetchTransform);
+};
+
+export default {
+  login,
+  logout,
 };

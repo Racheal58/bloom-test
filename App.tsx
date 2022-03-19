@@ -18,11 +18,16 @@ import {
   View,
 } from 'react-native';
 
-import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import {useAsync} from 'react-async';
-import {login, logout} from './api';
+import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
+import api from './api';
 
-const KeyBoard = (props: any) => {
+type KeyPadProps = {
+  value: string;
+  onPress: (value: string) => void;
+};
+
+const KeyPad = ({value, onPress}: KeyPadProps) => {
   return (
     <View
       style={{
@@ -32,7 +37,7 @@ const KeyBoard = (props: any) => {
         alignItems: 'center',
       }}>
       <Pressable
-        onPress={() => props.onPress(props.value)}
+        onPress={() => onPress(value)}
         style={{
           borderWidth: 1,
           borderColor: 'grey',
@@ -41,8 +46,9 @@ const KeyBoard = (props: any) => {
           height: '70%',
           justifyContent: 'center',
           alignItems: 'center',
-        }}>
-        <Text style={{fontSize: 20}}>{props.value}</Text>
+        }}
+        testID={`input-${value}`}>
+        <Text style={{fontSize: 20}}>{value}</Text>
       </Pressable>
     </View>
   );
@@ -70,7 +76,9 @@ const App = () => {
     setPin(prev => prev + text);
   };
   const {isLoading: isLoggingIn, run: runLogIn} = useAsync({
-    deferFn: useCallback(() => login(pin), [pin]),
+    deferFn: useCallback(async () => {
+      return api.login(pin);
+    }, [pin]),
     onResolve: useCallback(response => {
       const {token} = response;
       if (token) {
@@ -78,12 +86,12 @@ const App = () => {
         setPin('');
       }
     }, []),
-    onReject: useCallback(() => {
+    onReject: useCallback(error => {
       setPin('');
     }, []),
   });
   const {isLoading: isLoggingOut, run: runLogOut} = useAsync({
-    deferFn: useCallback(() => logout(tokenState), [tokenState]),
+    deferFn: useCallback(() => api.logout(tokenState), [tokenState]),
     onResolve: useCallback(() => {
       setTokenState('');
     }, []),
@@ -93,7 +101,6 @@ const App = () => {
       runLogIn();
     }
   }, [pin.length, runLogIn]);
-
   return (
     <SafeAreaView
       style={{
@@ -131,22 +138,28 @@ const App = () => {
               paddingHorizontal: 20,
               justifyContent: 'center',
               height: '75%',
-            }}>
-            <KeyBoard value={1} onPress={onKeyPress} />
-            <KeyBoard value={2} onPress={onKeyPress} />
-            <KeyBoard value={3} onPress={onKeyPress} />
-            <KeyBoard value={4} onPress={onKeyPress} />
-            <KeyBoard value={5} onPress={onKeyPress} />
-            <KeyBoard value={6} onPress={onKeyPress} />
-            <KeyBoard value={7} onPress={onKeyPress} />
-            <KeyBoard value={8} onPress={onKeyPress} />
-            <KeyBoard value={9} onPress={onKeyPress} />
-            <KeyBoard value={0} onPress={onKeyPress} />
+            }}
+            testID="keyboard">
+            <KeyPad value="1" onPress={onKeyPress} />
+            <KeyPad value="2" onPress={onKeyPress} />
+            <KeyPad value="3" onPress={onKeyPress} />
+            <KeyPad value="4" onPress={onKeyPress} />
+            <KeyPad value="5" onPress={onKeyPress} />
+            <KeyPad value="6" onPress={onKeyPress} />
+            <KeyPad value="7" onPress={onKeyPress} />
+            <KeyPad value="8" onPress={onKeyPress} />
+            <KeyPad value="9" onPress={onKeyPress} />
+            <KeyPad value="0" onPress={onKeyPress} />
           </View>
         </>
       ) : (
         <View>
-          <Button title="Logout" onPress={runLogOut} color={'red'} />
+          <Button
+            title="Logout"
+            onPress={runLogOut}
+            color={'red'}
+            testID="log-out-btn"
+          />
         </View>
       )}
       {isLoggingIn && <Loader />}
