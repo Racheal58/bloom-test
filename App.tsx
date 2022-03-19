@@ -21,6 +21,7 @@ import {
 import {useAsync} from 'react-async';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import api from './api';
+import styles from './styles';
 
 type KeyPadProps = {
   value: string;
@@ -29,26 +30,12 @@ type KeyPadProps = {
 
 const KeyPad = ({value, onPress}: KeyPadProps) => {
   return (
-    <View
-      style={{
-        width: '33.3333%',
-        height: 130,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
+    <View style={styles.keyPadStyle}>
       <Pressable
         onPress={() => onPress(value)}
-        style={{
-          borderWidth: 1,
-          borderColor: 'grey',
-          paddingHorizontal: '5%',
-          width: '65%',
-          height: '70%',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
+        style={styles.buttonStyle}
         testID={`input-${value}`}>
-        <Text style={{fontSize: 20}}>{value}</Text>
+        <Text style={styles.buttonTextStyle}>{value}</Text>
       </Pressable>
     </View>
   );
@@ -56,13 +43,7 @@ const KeyPad = ({value, onPress}: KeyPadProps) => {
 
 const Loader = () => {
   return (
-    <View
-      style={{
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-      }}>
+    <View style={styles.loaderContainer}>
       <ActivityIndicator size={'large'} />
     </View>
   );
@@ -86,7 +67,7 @@ const App = () => {
         setPin('');
       }
     }, []),
-    onReject: useCallback(error => {
+    onReject: useCallback(() => {
       setPin('');
     }, []),
   });
@@ -102,44 +83,21 @@ const App = () => {
     }
   }, [pin.length, runLogIn]);
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+    <SafeAreaView style={styles.container}>
       {!tokenState ? (
         <>
-          <View
-            style={{
-              height: '25%',
-              justifyContent: 'flex-end',
-              paddingBottom: 40,
-            }}>
+          <View style={styles.pinContainer}>
             <SmoothPinCodeInput
               password
               mask="﹡"
-              cellStyle={{
-                borderBottomWidth: 2,
-                borderColor: 'gray',
-              }}
-              cellStyleFocused={{
-                borderColor: 'black',
-              }}
+              cellStyle={styles.cellStyle}
+              cellStyleFocused={styles.cellStyleFocused}
               value={pin}
               onTextChange={setPin}
             />
           </View>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              paddingHorizontal: 20,
-              justifyContent: 'center',
-              height: '75%',
-            }}
-            testID="keyboard">
+          <View style={styles.keyPadContainer} testID="keyboard">
             <KeyPad value="1" onPress={onKeyPress} />
             <KeyPad value="2" onPress={onKeyPress} />
             <KeyPad value="3" onPress={onKeyPress} />
