@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Button, SafeAreaView, View} from 'react-native';
 
 import {useAsync} from 'react-async';
@@ -28,8 +28,10 @@ const App = () => {
         setPin('');
       }
     }, []),
-    onReject: useCallback(() => {
-      setPin('');
+    onReject: useCallback(error => {
+      if (error.name === 'ApiError') {
+        setPin('');
+      }
     }, []),
   });
   const {isLoading: isLoggingOut, run: runLogOut} = useAsync({
@@ -43,6 +45,23 @@ const App = () => {
       runLogIn();
     }
   }, [pin.length, runLogIn]);
+
+  const keypadBtns = useMemo(
+    () => [
+      {value: '1'},
+      {value: '2'},
+      {value: '3'},
+      {value: '4'},
+      {value: '5'},
+      {value: '6'},
+      {value: '7'},
+      {value: '8'},
+      {value: '9'},
+      {value: '0'},
+    ],
+    [],
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       {!tokenState ? (
@@ -60,16 +79,9 @@ const App = () => {
           </View>
 
           <View style={styles.keyPadContainer} testID="keyboard">
-            <KeyPad value="1" onPress={onKeyPress} />
-            <KeyPad value="2" onPress={onKeyPress} />
-            <KeyPad value="3" onPress={onKeyPress} />
-            <KeyPad value="4" onPress={onKeyPress} />
-            <KeyPad value="5" onPress={onKeyPress} />
-            <KeyPad value="6" onPress={onKeyPress} />
-            <KeyPad value="7" onPress={onKeyPress} />
-            <KeyPad value="8" onPress={onKeyPress} />
-            <KeyPad value="9" onPress={onKeyPress} />
-            <KeyPad value="0" onPress={onKeyPress} />
+            {keypadBtns.map(({value}) => (
+              <KeyPad key={value} value={value} onPress={onKeyPress} />
+            ))}
           </View>
         </>
       ) : (

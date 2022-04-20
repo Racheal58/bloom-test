@@ -4,13 +4,25 @@ const fetchTransform = async (res: Response) => {
   const {error, ...data} = await res.json();
   if (error) {
     Alert.alert(error);
-    throw new Error(error);
+    const apiError = new Error(error);
+    apiError.name = 'ApiError';
   }
   return data;
 };
 
+const fetchErrorTransform = async (error: Error) => {
+  if (error.message.includes('Network')) {
+    Alert.alert(error.message);
+  }
+  throw error;
+};
+
+const fetcher = (...args: Parameters<typeof fetch>) => {
+  return fetch(...args).then(fetchTransform, fetchErrorTransform);
+};
+
 const login = (pin: string) => {
-  return fetch(`${Config.BASE_API_URL}/login`, {
+  return fetcher(`${Config.BASE_API_URL}/login`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -19,18 +31,18 @@ const login = (pin: string) => {
     body: JSON.stringify({
       pin,
     }),
-  }).then(fetchTransform);
+  });
 };
 
 const logout = (token: string) => {
-  return fetch(`${Config.BASE_API_URL}/logout`, {
+  return fetcher(`${Config.BASE_API_URL}/logout`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       Authorization: token,
     },
-  }).then(fetchTransform);
+  });
 };
 
 export default {
